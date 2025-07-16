@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flower Recognition App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      max-width: 700px;
+      margin: auto;
+      text-align: center;
+      background-color: #f5f5fa;
+    }
+    input[type="file"] {
+      margin-top: 1rem;
+    }
+    img {
+      max-width: 100%;
+      margin-top: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    .prediction {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      color: green;
+    }
+    footer {
+      margin-top: 3rem;
+      font-size: 0.9rem;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌸 Intelligent Flower Recognition</h1>
+  <p>Upload an image of a flower and our AI will predict the flower type.</p>
+
+  <input type="file" id="imageInput" accept="image/*">
+  <div>
+    <img id="preview" src="" alt="Preview" style="display:none">
+  </div>
+  <div class="prediction" id="result"></div>
+
+  <footer>
+    Deploy this app on GitHub Pages or integrate with Flask for real-time inference.
+  </footer>
+
+  <script>
+    const imageInput = document.getElementById('imageInput');
+    const preview = document.getElementById('preview');
+    const result = document.getElementById('result');
+
+    imageInput.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+
+          result.innerText = "Predicting...";
+
+          const formData = new FormData();
+          formData.append("image", file);
+
+          try {
+            const response = await fetch("/predict", {
+              method: "POST",
+              body: formData
+            });
+            const data = await response.json();
+            result.innerText = `🌺 Predicted: ${data.label} (Confidence: ${data.confidence}%)`;
+          } catch (error) {
+            result.innerText = "❌ Prediction failed. Please try again later.";
+            console.error(error);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+</body>
+</html>
